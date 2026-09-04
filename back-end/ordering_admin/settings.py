@@ -186,6 +186,10 @@ CORS_ALLOWED_ORIGINS = [
 "http://localhost:5173",
 "http://192.168.100.70:5173",
 "https://qr-menu-ordering-ruddy.vercel.app"
+
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://qr-menu-ordering.*\.vercel\.app$",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

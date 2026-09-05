@@ -96,10 +96,10 @@ function Login_Page({
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-lg bg-[#C08552] text-[#4B2E2B] font-bold text-lg flex items-center justify-center">
-              A
+              <UtensilsCrossed size="20" />
             </div>
             <span className="text-lg font-semibold text-[#4B2E2B] tracking-tight">
-              Aperture
+              Eat N Dash
             </span>
           </div>
 

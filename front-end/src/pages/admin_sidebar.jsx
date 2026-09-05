@@ -12,7 +12,10 @@ import {
   ViewTableModal,
 } from "../components/table_form_modal";
 
-import { ShowDashBoardStats } from "../services/dashboard_service";
+import {
+  ShowDashBoardStats,
+  ShowWeeklyRevenue,
+} from "../services/dashboard_service";
 import { GetAllUser, DeleteUser } from "../services/user_service";
 import { GetAllFood, DeleteFood, ChangeStatus } from "../services/food_service";
 import { GetAllTable, DeleteTable } from "../services/table_service";
@@ -102,31 +105,6 @@ const nav = [
   // },
 ];
 
-// DASH BOARD
-
-const revenueTrend = [
-  { day: "Mon", revenue: 6200 },
-  { day: "Tue", revenue: 7100 },
-  { day: "Wed", revenue: 5800 },
-  { day: "Thu", revenue: 8300 },
-  { day: "Fri", revenue: 9100 },
-  { day: "Sat", revenue: 11400 },
-  { day: "Sun", revenue: 8420 },
-];
-
-const recentOrders = [
-  { table: "Table 4", status: "Served", payment: "Paid", amount: "₱220.00" },
-  {
-    table: "Table 7",
-    status: "Preparing",
-    payment: "Pending",
-    amount: "₱235.00",
-  },
-  { table: "Table 2", status: "Served", payment: "Paid", amount: "₱455.00" },
-  { table: "Table 9", status: "Ready", payment: "Pending", amount: "₱445.00" },
-];
-
-//  END OF DASH BOARD
 // MODAL ID
 
 const userFormModal = "userFormModal";
@@ -142,6 +120,7 @@ let TOTAL_PAGES = 0;
 
 function DashBoardContainer() {
   const [stats, setStats] = useState({});
+  const [weeklyRevenue, setWeeklyRevenue] = useState({});
   const [orders, setOrders] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const { auth, loading } = useAuth();
@@ -161,6 +140,23 @@ function DashBoardContainer() {
     }
 
     DisplayDashBoardStats();
+  }, [loading]);
+
+  useEffect(() => {
+    if (loading) return;
+    setDataLoading(true);
+    async function DisplayWeeklyRevenue() {
+      try {
+        const data = await ShowWeeklyRevenue();
+        setWeeklyRevenue(data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setDataLoading(false);
+      }
+    }
+
+    DisplayWeeklyRevenue();
   }, [loading]);
 
   useEffect(() => {
@@ -195,7 +191,7 @@ function DashBoardContainer() {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={revenueTrend}
+                  data={weeklyRevenue}
                   margin={{ left: -20, right: 10 }}>
                   <CartesianGrid stroke="#C08552" vertical={false} />
                   <XAxis

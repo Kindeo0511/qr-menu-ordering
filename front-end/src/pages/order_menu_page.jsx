@@ -429,7 +429,7 @@ function OrderMenuPage() {
         </div>
         <h1 className="text-2xl font-bold text-[#4B2E2B]">Order sent!</h1>
         <p className="text-[#8C5A3C] max-w-xs">
-          Table {table?.table_number} — your order is on its way to the kitchen.
+          Table {table?.table_number} your order is on its way to the kitchen.
         </p>
         <button
           className="btn bg-[#C08552] hover:bg-[#8C5A3C] text-white border-none mt-4 px-8"

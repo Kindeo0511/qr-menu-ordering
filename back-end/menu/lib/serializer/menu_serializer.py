@@ -2,6 +2,8 @@ from rest_framework import serializers
 from ...models import CategoryMenu, FoodMenu, Orders, Table, TableOrders, Payment
 from rest_framework.validators import UniqueTogetherValidator
 class CategorySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=True)
+    photo = serializers.ImageField(required=True)
     class Meta:
         model = CategoryMenu
         fields = ['name','photo','updated_at']
@@ -14,6 +16,10 @@ class DisplayCategorySerializer(serializers.ModelSerializer):
     
 
 class FoodSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=True)
+    price = serializers.DecimalField(max_digits=10, decimal_places=2, required=True)
+    food_img = serializers.ImageField(required=True)
+    
     class Meta:
         model = FoodMenu
         fields = ['name','category','price','food_img','updated_at','is_active']
@@ -37,6 +43,8 @@ class DisplayFoodSerializer(serializers.ModelSerializer):
 
 
 class FoodOrderSerializer(serializers.ModelSerializer):
+    food = serializers.CharField(required=True)
+    qty = serializers.IntegerField(required=True)
     class Meta:
         model = Orders
         fields = ['food','qty']
@@ -49,6 +57,8 @@ class DisplayFoodOrderSerializer(serializers.ModelSerializer):
         fields = ['id','food_name','price','qty']
 
 class TableSerializer(serializers.ModelSerializer):
+
+    
     class Meta:
         model = Table
         fields = '__all__'
@@ -77,6 +87,8 @@ class UpdatePaymentStatusSerializer(serializers.ModelSerializer):
         fields = ['payment_status']
 
 class SavePaymentSerializer(serializers.ModelSerializer):
+    total_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=True)
+    amount_received = serializers.DecimalField(max_digits=10, decimal_places=2, required=True)
     class Meta:
         model = Payment
         fields = ['table_order','cashier','total_amount','amount_received']

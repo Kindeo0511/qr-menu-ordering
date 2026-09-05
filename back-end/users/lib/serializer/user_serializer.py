@@ -7,8 +7,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     contact_number = serializers.CharField(required=True)
-    role = serializers.ChoiceField(choices=UserModel.ROLE_CHOICES)
-
+    role = serializers.ChoiceField(choices=UserModel.ROLE_CHOICES, required=True)
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
     class Meta:
         model = UserModel
         fields = ['first_name','last_name','email','contact_number',
@@ -19,4 +20,4 @@ class DisplayUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ['id','first_name','last_name','email','contact_number',
-                  'username','password','role','role_display']
+                  'username','role','role_display']

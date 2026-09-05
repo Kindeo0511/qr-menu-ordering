@@ -47,7 +47,7 @@ urlpatterns = [
 
     # DASHBOARD API
     path('dashboard/stats/',DashBoardStatsView.as_view(), name='dashboard-stats'),
-
+    path('weekly-revenue/',WeeklyRevenueView.as_view(), name='weekly-revenue'),
     # CUSTOMER API
     path('menu/',ShowFoodMenuView.as_view(), name='food-menu'),
     path('table/',ShowCustomerTableView.as_view(), name='qr-table'),

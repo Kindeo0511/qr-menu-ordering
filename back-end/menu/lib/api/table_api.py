@@ -29,7 +29,17 @@ class CreateQRTableView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request: Request) -> Response:
         count = request.data.get('table_count')
+        try:
+            count = int(count)
+        except (TypeError, ValueError):
+            return Response({"error": "table_count must be a valid integer."}, status=status.HTTP_400_BAD_REQUEST)
 
+        if count <= 0:
+            return Response({"error": "table_count must be greater than zero."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if count > 100:  
+            return Response({"error": "table_count is too large."}, status=status.HTTP_400_BAD_REQUEST)
+        
         max_number = Table.objects.aggregate(Max('table_number'))['table_number__max']
         start_number = (max_number or 0) + 1
 

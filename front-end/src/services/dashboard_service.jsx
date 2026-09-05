@@ -13,3 +13,16 @@ export async function ShowDashBoardStats() {
     }
   }
 }
+
+export async function ShowWeeklyRevenue() {
+  try {
+    const response = await api.get(`api/weekly-revenue/`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw error.response.data;
+    } else {
+      throw new Error("Something went wrong. Please try again.");
+    }
+  }
+}

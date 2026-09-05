@@ -31,6 +31,7 @@ class ProcessPaymentView(APIView):
                     {"error": "This order has already been paid."},
                     status=status.HTTP_409_CONFLICT,
                 )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ShowAllPaymentView(APIView):
     permission_classes = [IsAuthenticated & (IsAdmin | IsCashier)]
@@ -62,3 +63,7 @@ class GetPaymentByIdView(APIView):
         except Payment.DoesNotExist:
             return Response({'error: ':'Payment record not found.'})
 
+class WeeklyRevenueView(APIView):
+    def get(self, request:Request) -> Response:
+        weekly_revenue = get_weekly_revenue_trend()
+        return Response(weekly_revenue,status=status.HTTP_200_OK)

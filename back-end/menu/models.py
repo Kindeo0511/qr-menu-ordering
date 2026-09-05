@@ -7,6 +7,10 @@ class CategoryMenu(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+        ordering = ['-id']
     def __str__(self):
         return self.name
 
@@ -25,7 +29,6 @@ class CategoryMenu(models.Model):
             self.photo.delete(save=False)
         super().delete(*args, **kwargs)
 
-
 class FoodMenu(models.Model):
     category = models.ForeignKey(CategoryMenu, related_name='food_category', on_delete=models.CASCADE)
     name = models.CharField(max_length=200, blank=True)
@@ -36,7 +39,12 @@ class FoodMenu(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
+        verbose_name = 'Menu'
+        verbose_name_plural = 'Menus'
         ordering =['id']
+
+    def __str__(self):
+        return f'{self.name}'
         
     def save(self, *args, **kwargs):
         try:
@@ -52,7 +60,6 @@ class FoodMenu(models.Model):
         if self.food_img:
             self.food_img.delete(save=False)
         super().delete(*args, **kwargs)
-
 
 class Table(models.Model):
     STATUS_CHOICES = [
@@ -105,6 +112,8 @@ class TableOrders(models.Model):
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:
+        verbose_name = 'Table Order'
+        verbose_name_plural = 'Table Orders'
         ordering = ['-id']
     def __str__(self):
         return f"Table {self.table} - {self.order_status}"
@@ -126,7 +135,10 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = 'Payment'
+        verbose_name_plural = 'Payments'
         ordering = ['-id']
+        
     def save(self, *args, **kwargs):
             self.change_given = self.amount_received - self.total_amount
             super().save(*args, **kwargs)

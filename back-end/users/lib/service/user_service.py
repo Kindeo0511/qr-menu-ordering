@@ -1,7 +1,10 @@
 from users.models import UserModel
 
 def create_user(data):
-    return UserModel.objects.create_user(**data)
+    password = data.pop('password', None)
+    user = UserModel.objects.create_user(password=password,**data)
+    return user
+
 def update_user(user, data):
     password = data.pop('password', None)
 

@@ -125,55 +125,18 @@ function DashBoardContainer() {
   const [dataLoading, setDataLoading] = useState(true);
   const { auth, loading } = useAuth();
 
+  
   useEffect(() => {
     if (loading) return;
     setDataLoading(true);
-    async function DisplayDashBoardStats() {
-      try {
-        const data = await ShowDashBoardStats();
-        setStats(data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setDataLoading(false);
-      }
-    }
-
-    DisplayDashBoardStats();
-  }, [loading]);
-
-  useEffect(() => {
-    if (loading) return;
-    setDataLoading(true);
-    async function DisplayWeeklyRevenue() {
-      try {
-        const data = await ShowWeeklyRevenue();
-        setWeeklyRevenue(data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setDataLoading(false);
-      }
-    }
-
-    DisplayWeeklyRevenue();
-  }, [loading]);
-
-  useEffect(() => {
-    if (loading) return;
-    setDataLoading(true);
-    async function RecentOrders() {
-      try {
-        const data = await ShowAllOrder();
-        setOrders(data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setDataLoading(false);
-      }
-    }
-
-    RecentOrders();
+    Promise.all([ShowDashBoardStats(), ShowWeeklyRevenue(), ShowAllOrder()])
+      .then(([stats, revenue, orders]) => {
+        setStats(stats);
+        setWeeklyRevenue(revenue);
+        setOrders(orders);
+      })
+      .catch(console.error)
+      .finally(() => setDataLoading(false));
   }, [loading]);
 
   return dataLoading ? (
@@ -191,7 +154,7 @@ function DashBoardContainer() {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={weeklyRevenue}
+                  data={Array.isArray(weeklyRevenue) ? weeklyRevenue : []}
                   margin={{ left: -20, right: 10 }}>
                   <CartesianGrid stroke="#C08552" vertical={false} />
                   <XAxis

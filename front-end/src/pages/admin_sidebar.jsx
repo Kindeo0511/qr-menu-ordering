@@ -125,6 +125,7 @@ function DashBoardContainer() {
   const [dataLoading, setDataLoading] = useState(true);
   const { auth, loading } = useAuth();
 
+  
   useEffect(() => {
     if (loading) return;
     setDataLoading(true);
@@ -137,6 +138,10 @@ function DashBoardContainer() {
       .catch(console.error)
       .finally(() => setDataLoading(false));
   }, [loading]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3606ad6157866e26fe59f59b6cfbeb7bc138b320
   return dataLoading ? (
     <p>loading</p>
   ) : (

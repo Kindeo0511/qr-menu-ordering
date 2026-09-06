@@ -73,6 +73,10 @@ class Table(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Available")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = 'Table'
+        verbose_name_plural = 'Tables'
+        ordering = ['-id']
     def __str__(self):
         return f'Table Number: {self.table_number}'
 

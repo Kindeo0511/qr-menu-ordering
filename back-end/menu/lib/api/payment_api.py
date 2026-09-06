@@ -61,7 +61,7 @@ class GetPaymentByIdView(APIView):
             serializer = DisplayPaymentSerializer(payment_data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Payment.DoesNotExist:
-            return Response({'error: ':'Payment record not found.'})
+            return Response({'error: ':'Payment record not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class WeeklyRevenueView(APIView):
     def get(self, request:Request) -> Response:

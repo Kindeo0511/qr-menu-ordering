@@ -43,7 +43,7 @@ class DisplayFoodSerializer(serializers.ModelSerializer):
 
 
 class FoodOrderSerializer(serializers.ModelSerializer):
-    food = serializers.CharField(required=True)
+    food = serializers.PrimaryKeyRelatedField(queryset=FoodMenu.objects.all())
     qty = serializers.IntegerField(required=True)
     class Meta:
         model = Orders

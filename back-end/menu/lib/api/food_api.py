@@ -84,7 +84,7 @@ class GetFoodView(APIView):
             serializer = DisplayFoodSerializer(food_data, context={"request":request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except FoodMenu.DoesNotExist:
-                    return Response({'error:':'Food not found.'})
+            return Response({'error:':'Food not found.'}, status=status.HTTP_404_NOT_FOUND)
 
             
     

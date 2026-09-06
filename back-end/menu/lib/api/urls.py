@@ -1,6 +1,5 @@
 from .category_api import *
 from .food_api import *
-from .food_order_api import *
 from .table_api import *
 from .table_order_api import *
 from .payment_api import *
@@ -23,9 +22,7 @@ urlpatterns = [
     path('food-menu/all/', ShowAllFoodView.as_view(), name='show-all-food-menu'),
     path('food-menu/<int:pk>/', GetFoodView.as_view(), name='get-food-menu'),
 
-    # FOOD ORDER API
-    # path('food-order/create/', CreateOrderView.as_view(), name='create-food-order'),
-    # path('food-order/all/', ShowAllOrderView.as_view(), name='update-food-order'),
+
 
     # TABLE QR CODE API
     path('table/create/', CreateQRTableView.as_view(), name='create-table'),

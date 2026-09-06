@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 paginator = StandardResultsSetPagination()
 
 class CreateCategoryView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     def post(self, request: Request) -> Response:
         serializer = CategorySerializer(data = request.data)
         if serializer.is_valid():

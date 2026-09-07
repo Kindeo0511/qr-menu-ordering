@@ -23,6 +23,7 @@ export function AuthProvider({ children }) {
     async function restoreSession() {
       setLoading(true);
       try {
+        if (!accessToken) return;
         const res = await api.post("api/refresh/token/");
         setAccessToken(res.data.access);
         setAuth({ access: res.data.access });

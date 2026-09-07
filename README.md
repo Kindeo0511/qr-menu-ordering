@@ -2,6 +2,23 @@
 
 A full-stack ordering system where customers can order food through a web page accessed via QR code.
 
+## Screenshots
+
+![Login page](images/Screenshot%202026-09-07%20154522.png)
+![Cashier page](images/Screenshot%202026-09-07%20154544.png)
+![Cashier order page](images/Screenshot%202026-09-07%20154558.png)
+![Kitchen page](images/Screenshot%202026-09-07%20154613.png)
+![Admin dashboard](images/Screenshot%202026-09-07%20154639.png)
+![Admin food table](images/Screenshot%202026-09-07%20154650.png)
+![Admin QR code table](images/Screenshot%202026-09-07%20155940.png)
+![Admin QR code view](images/Screenshot%202026-09-07%20155949.png)
+![Customer page](images/Screenshot%202026-09-07%20161257.png)
+![Customer cart view](images/Screenshot%202026-09-07%20161311.png)
+
+
+
+
+
 ## Features
 
 - 🔍 Search and filter food items and categories by name
@@ -9,7 +26,7 @@ A full-stack ordering system where customers can order food through a web page a
 - 👤 Admins can manage the system
 - 💳 Cashiers can process payments
 - 🍳 Kitchen staff can update order status
-- 🔐 Role-based authentication (admin / cashier /)
+- 🔐 Role-based authentication (admin / cashier)
 
 ## Tech Stack
 
@@ -34,7 +51,7 @@ A full-stack ordering system where customers can order food through a web page a
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/qr-menu-ordering.git
+git clone https://github.com/Kindeo0511/qr-menu-ordering.git
 cd qr-menu-ordering/back-end
 ```
 
@@ -66,6 +83,8 @@ Create a `.env` file inside the `back-end` folder:
 DATABASE_NAME=qr_ordering_db
 DATABASE_USER=postgres
 DATABASE_PASSWORD=your_secure_password
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
 
 # DJANGO
 SECRET_KEY=your_django_secret_key
@@ -80,6 +99,7 @@ API_SECRET=your_api_secret
 ### Running Locally
 
 ```bash
+
 # Apply migrations
 python manage.py migrate
 

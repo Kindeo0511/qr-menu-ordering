@@ -1,6 +1,6 @@
 # QR Code Based Ordering System
 
-A full-stack ordering system where customers can order food by scanning a table QR code with their phone camera
+A full-stack ordering system where customers can order food by scanning a QR code with their phone camera
 
 ## Screenshots
 

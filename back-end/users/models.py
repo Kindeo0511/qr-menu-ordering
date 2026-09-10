@@ -6,6 +6,7 @@ class UserModel(AbstractUser):
 
     ROLE_CHOICES = {
         "AD":"Admin",
+        "ST":"Staff",
         "CA":"Cashier"
     }
     role = models.CharField(max_length=2, choices=ROLE_CHOICES, blank=True)

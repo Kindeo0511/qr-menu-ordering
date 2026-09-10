@@ -65,3 +65,40 @@ export async function GetCurrentUser() {
     }
   }
 }
+
+export async function UserProfile() {
+  try {
+    const response = await api.get(`api/user/profile/`);
+    return response.data;
+  } catch (err) {
+    if (error.response) {
+      throw error.response.data;
+    }
+  }
+}
+
+export async function UpdateProfile(payload) {
+  try {
+    const response = await api.put(`/api/user/update-profile/`, payload);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw error.response.data;
+    } else {
+      throw new Error("Something went wrong. Please try again.");
+    }
+  }
+}
+
+export async function ChangePassword(payload) {
+  try {
+    const response = await api.put(`/api/user/change-password/`, payload);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw error.response.data;
+    } else {
+      throw new Error("Something went wrong. Please try again.");
+    }
+  }
+}

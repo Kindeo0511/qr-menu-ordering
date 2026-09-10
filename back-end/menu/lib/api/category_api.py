@@ -32,7 +32,7 @@ class UpdateCategoryView(APIView):
     def put(self, request, pk:int) -> Response:
         try:
             old_category = get_category_by_id(pk)
-            serializer = CategorySerializer(instance=old_category,data = request.data)
+            serializer = CategorySerializer(instance=old_category,data = request.data, partial=True)
             if serializer.is_valid():
                 updated_category = update_category(old_category, serializer.validated_data)
                 serializer = DisplayCategorySerializer(updated_category)

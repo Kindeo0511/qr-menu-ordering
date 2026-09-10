@@ -12,6 +12,7 @@ import { Routes, Route } from "react-router-dom";
 import { GetCurrentUser } from "./services/user_service";
 // import { RefreshToken } from "./auth/user_auth";
 import { AuthProvider } from "./auth/user_auth";
+import { ProtectedRoute } from "./api/protected_route";
 function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +36,7 @@ function App() {
                 password={password}
                 setPassword={setPassword}
                 showPassword={showPassword}
-                setShowPassword={showPassword}
+                setShowPassword={setShowPassword}
               />
             }
           />
@@ -44,7 +45,14 @@ function App() {
             element={<AdminDashboard username={username} />}
           />
           <Route path="/menu/:tableId" element={<OrderMenuPage />} />
-          <Route path="/secret-kitchen/" element={<KitchenPage />} />
+          <Route
+            path="/secret-kitchen/"
+            element={
+              <ProtectedRoute>
+                <KitchenPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/secret-cashier/"
             element={<CashierPage user={user} />}

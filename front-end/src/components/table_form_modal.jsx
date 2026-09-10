@@ -5,12 +5,13 @@ import {
   GetTableById,
   GenerateQRCode,
 } from "../services/table_service";
-
-function CreateTableModal({ modal_id, setTables }) {
+import Alert from "./Alert";
+import { extractErrorMessage } from "../utils/util";
+function CreateTableModal({ modal_id, setTables, onSuccess }) {
   const [tableCount, setTableCount] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [errorMsg, setErrorMsg] = useState(null);
   async function HandleSubmit(e) {
     e.preventDefault();
     setError(null);
@@ -27,19 +28,26 @@ function CreateTableModal({ modal_id, setTables }) {
       const newTables = Array.isArray(data) ? data : [data];
       setTables((prev) => [...prev, ...newTables]);
       setTableCount("");
+      onSuccess("Table added successfully.");
+      ClearFields();
       document.getElementById(modal_id).close();
     } catch (err) {
-      setError(err?.message || "Something went wrong.");
+      setErrorMsg(err?.detail || err?.message || "Failed to add table.");
+      setError(err);
     } finally {
       setLoading(false);
     }
+  }
+  function ClearFields() {
+    setError(null);
+    setErrorMsg(null);
   }
 
   return (
     <dialog id={modal_id} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box w-full max-w-md bg-[#FFF8F0]">
         <h3 className="text-lg font-semibold text-[#4B2E2B] mb-4">Set Table</h3>
-
+        {errorMsg && <Alert type="error" message={errorMsg} />}
         <form onSubmit={HandleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col w-full gap-1.5">
             <label
@@ -53,11 +61,10 @@ function CreateTableModal({ modal_id, setTables }) {
               className="input w-full bg-[#FFF8F0] border border-[#8C5A3C] text-[#4B2E2B] focus:border-[#C08552] focus:outline-[#C08552]/20
           [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Enter how many tables"
-              min="1"
-              max="100"
               value={tableCount}
               onChange={(e) => setTableCount(e.target.value)}
             />
+
             {error && <p className="text-[#C08552] text-xs mt-0.5">{error}</p>}
           </div>
 
@@ -216,11 +223,11 @@ function ViewTableModal({ modal_id, tableId }) {
   );
 }
 
-function UpdateTableModal({ modal_id, tableId, setTables }) {
+function UpdateTableModal({ modal_id, tableId, setTables, onSuccess }) {
   const [tableNumber, setTableNumber] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [errorMsg, setErrorMsg] = useState(null);
   async function HandleSubmit(e) {
     e.preventDefault();
     setError(null);
@@ -237,13 +244,23 @@ function UpdateTableModal({ modal_id, tableId, setTables }) {
       setTables((prev) =>
         prev.map((table) => (table.id === data.id ? data : table)),
       );
+      ClearFields();
       setTableNumber("");
+      onSuccess("Table added successfully.");
       document.getElementById(modal_id).close();
     } catch (err) {
-      setError(err?.message || "Something went wrong.");
+      const message = extractErrorMessage(err);
+      // setErrorMsg(err);
+      setError(message);
     } finally {
       setLoading(false);
     }
+  }
+
+  function ClearFields() {
+    setError(null);
+    setErrorMsg(null);
+    setTableNumber("");
   }
 
   return (
@@ -252,7 +269,7 @@ function UpdateTableModal({ modal_id, tableId, setTables }) {
         <h3 className="text-lg font-semibold text-[#4B2E2B] mb-4">
           Update Table
         </h3>
-
+        {errorMsg && <Alert type="error" message={errorMsg} />}
         <form onSubmit={HandleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col w-full gap-1.5">
             <label
@@ -266,11 +283,11 @@ function UpdateTableModal({ modal_id, tableId, setTables }) {
               className="input w-full bg-[#FFF8F0] border border-[#8C5A3C] text-[#4B2E2B] focus:border-[#C08552] focus:outline-[#C08552]/20
           [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Enter table number"
-              min="1"
               max="100"
               value={tableNumber}
               onChange={(e) => setTableNumber(e.target.value)}
             />
+
             {error && <p className="text-[#C08552] text-xs mt-0.5">{error}</p>}
           </div>
 

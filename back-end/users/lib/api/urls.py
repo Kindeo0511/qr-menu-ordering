@@ -1,5 +1,5 @@
 from django.urls import path
-from ..api.user_api import CreateUserView,UpdateUserView, DeleteUserView,GetAllUserView, CurrentUserView, LoginView, LogoutView, CookieTokenRefreshView
+from ..api.user_api import *
 
 
 urlpatterns = [
@@ -12,6 +12,10 @@ urlpatterns = [
     path('user/update/<int:pk>/',UpdateUserView.as_view(), name='update-user'),
     path('user/delete/<int:pk>/',DeleteUserView.as_view(), name='delete-user'),
     path('user/all-user/',GetAllUserView.as_view(), name='all-user'),
-    path('user/me/',CurrentUserView.as_view(), name='current -user')
+    path('user/me/',CurrentUserView.as_view(), name='current -user'),
+
+    path('user/profile/',GetUserProfileView.as_view(), name='get-user-profile'),
+    path('user/update-profile/',UpdateUserProfileView.as_view(), name='update-user-profile'),
+    path('user/change-password/',ChangePasswordView.as_view(), name='change-user-password'),
 
 ]

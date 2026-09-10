@@ -6,12 +6,13 @@ import FoodFormModal from "../components/food_form_modal";
 import PaymentFormModal from "../components/payment_form_modal";
 import { useAuth } from "../auth/user_auth";
 import { GetCurrentUser } from "../services/user_service";
+import Alert from "../components/Alert";
 import {
   CreateTableModal,
   UpdateTableModal,
   ViewTableModal,
 } from "../components/table_form_modal";
-
+import { SettingsTab } from "../components/settings_tab";
 import {
   ShowDashBoardStats,
   ShowWeeklyRevenue,
@@ -99,10 +100,10 @@ const nav = [
       { label: "Payment", icon: CreditCard },
     ],
   },
-  // {
-  //   section: "System",
-  //   items: [{ label: "Settings", icon: Settings }],
-  // },
+  {
+    section: "System",
+    items: [{ label: "Settings", icon: Settings }],
+  },
 ];
 
 // MODAL ID
@@ -233,58 +234,68 @@ function DashBoardContainer() {
   );
 }
 
-function UsersList({ users, setUsers, userData, setUserData }) {
+function UsersList({
+  users,
+  setUsers,
+  userData,
+  setUserData,
+  onSuccess,
+  onError,
+}) {
   async function HandleDelete(pk) {
     try {
-      const data = await DeleteUser(pk);
+      await DeleteUser(pk);
       setUsers((prev) => prev.filter((u) => u.id !== pk));
+      onSuccess("User deleted successfully.");
     } catch (err) {
-      console.error(err);
+      onError(err?.detail || "Failed to delete user.");
     }
   }
   return (
-    <table className="table">
-      <thead className="bg-[#4B2E2B] text-[#FFF8F0]">
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Contact</th>
-          <th>Role</th>
-          <th className="text-center">Action</th>
-        </tr>
-      </thead>
-      <tbody className="text-[#4B2E2B]">
-        {users.map((u) => (
-          <tr
-            key={u.id}
-            className="border-b border-[#C08552]/30 transition-colors">
-            <td>
-              {u.first_name} {u.last_name}
-            </td>
-            <td>{u.email}</td>
-            <td>{u.contact_number}</td>
-            <td>{u.role_display}</td>
-            <td>
-              <div className="flex justify-around">
-                <button
-                  className="btn btn-xs sm:btn-sm bg-[#C08552] hover:bg-[#8C5A3C] text-[#FFF8F0] border-none transition-colors"
-                  onClick={() => {
-                    document.getElementById("userFormModal").showModal();
-                    setUserData(u);
-                  }}>
-                  <SquarePen size={24} />
-                </button>
-                <button
-                  className="btn btn-xs sm:btn-sm bg-[#8C5A3C] hover:bg-[#4B2E2B] text-[#FFF8F0] border-none transition-colors"
-                  onClick={() => HandleDelete(u.id)}>
-                  <Trash2 size={24} />
-                </button>
-              </div>
-            </td>
+    <>
+      <table className="table">
+        <thead className="bg-[#4B2E2B] text-[#FFF8F0]">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Role</th>
+            <th className="text-center">Action</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="text-[#4B2E2B]">
+          {users.map((u) => (
+            <tr
+              key={u.id}
+              className="border-b border-[#C08552]/30 transition-colors">
+              <td>
+                {u.first_name} {u.last_name}
+              </td>
+              <td>{u.email}</td>
+              <td>{u.contact_number}</td>
+              <td>{u.role_display}</td>
+              <td>
+                <div className="flex justify-around">
+                  <button
+                    className="btn btn-xs sm:btn-sm bg-[#C08552] hover:bg-[#8C5A3C] text-[#FFF8F0] border-none transition-colors"
+                    onClick={() => {
+                      document.getElementById("userFormModal").showModal();
+                      setUserData(u);
+                    }}>
+                    <SquarePen size={24} />
+                  </button>
+                  <button
+                    className="btn btn-xs sm:btn-sm bg-[#8C5A3C] hover:bg-[#4B2E2B] text-[#FFF8F0] border-none transition-colors"
+                    onClick={() => HandleDelete(u.id)}>
+                    <Trash2 size={24} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 
@@ -298,7 +309,14 @@ function UsersContainer() {
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
+  const [alert, setAlert] = useState(null);
   TOTAL_PAGES = Math.ceil(count / PAGE_SIZE);
+
+  useEffect(() => {
+    if (!alert) return;
+    const timer = setTimeout(() => setAlert(null), 3000);
+    return () => clearTimeout(timer);
+  }, [alert]);
 
   useEffect(() => {
     async function AllUsers() {
@@ -320,6 +338,7 @@ function UsersContainer() {
 
   return (
     <>
+      {alert && <Alert type={alert.type} message={alert.message} />}
       <button
         className="btn btn-xs sm:btn-sm md:btn-md bg-[#4B2E2B] hover:bg-[#8C5A3C] text-[#FFF8F0] border-none transition-colors"
         onClick={() => {
@@ -352,11 +371,13 @@ function UsersContainer() {
         </select>
       </div>
       {/*  */}
+
       <UserFormModal
         modal_id={userFormModal}
         userData={userData}
         setUserData={setUserData}
         setUsers={setUsers}
+        onSuccess={(msg) => setAlert({ type: "success", message: msg })}
       />
 
       <div className="rounded-lg border border-black/6 bg-[#FFF8F0] overflow-hidden">
@@ -369,6 +390,8 @@ function UsersContainer() {
               setUsers={setUsers}
               userData={userData}
               setUserData={setUserData}
+              onSuccess={(msg) => setAlert({ type: "success", message: msg })}
+              onError={(msg) => setAlert({ type: "error", message: msg })}
             />
           )}
         </div>
@@ -397,13 +420,21 @@ function UsersContainer() {
   );
 }
 
-function TableList({ tables, setTables, onViewTable, updateTableModal }) {
+function TableList({
+  tables,
+  setTables,
+  onViewTable,
+  updateTableModal,
+  onSuccess,
+  onError,
+}) {
   async function HandleDelete(pk) {
     try {
-      const data = await DeleteTable(pk);
-      setTables((prev) => prev.filter((u) => u.id !== pk));
+      await DeleteTable(pk);
+      setTables((prev) => prev.filter((u) => u.table_number !== pk));
+      onSuccess("Table deleted successfully.");
     } catch (err) {
-      console.error(err);
+      onError(err);
     }
   }
 
@@ -465,8 +496,14 @@ function TableContainer() {
   const [prevUrl, setPrevUrl] = useState(null);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
+  const [alert, setAlert] = useState(null);
 
   TOTAL_PAGES = Math.ceil(count / PAGE_SIZE);
+  useEffect(() => {
+    if (!alert) return;
+    const timer = setTimeout(() => setAlert(null), 3000);
+    return () => clearTimeout(timer);
+  }, [alert]);
 
   useEffect(() => {
     async function ShowAllTables() {
@@ -497,6 +534,7 @@ function TableContainer() {
   };
   return (
     <>
+      {alert && <Alert type={alert.type} message={alert.message} />}
       <button
         className="btn btn-xs sm:btn-sm md:btn-md bg-[#4B2E2B] hover:bg-[#8C5A3C] text-[#FFF8F0] border-none transition-colors"
         onClick={() => {
@@ -517,12 +555,17 @@ function TableContainer() {
           />
         </label>
       </div>
-      <CreateTableModal modal_id={CREATE_TABLE_MODAL} setTables={setTables} />
+      <CreateTableModal
+        modal_id={CREATE_TABLE_MODAL}
+        setTables={setTables}
+        onSuccess={(msg) => setAlert({ type: "success", message: msg })}
+      />
       <ViewTableModal modal_id={VIEW_TABLE_MODAL} tableId={tableId} />
       <UpdateTableModal
         modal_id={UPDATE_TABLE_MODAL}
         tableId={tableId}
         setTables={setTables}
+        onSuccess={(msg) => setAlert({ type: "success", message: msg })}
       />
 
       <div className="rounded-lg border border-black/6 bg-[#FFF8F0] overflow-hidden">
@@ -535,6 +578,8 @@ function TableContainer() {
               setTables={setTables}
               onViewTable={openViewModal}
               updateTableModal={openUpdateModal}
+              onSuccess={(msg) => setAlert({ type: "success", message: msg })}
+              onError={(msg) => setAlert({ type: "error", message: msg })}
             />
           )}
         </div>
@@ -562,13 +607,20 @@ function TableContainer() {
   );
 }
 
-function CategoryList({ categories, setCategories, setCategoryId }) {
+function CategoryList({
+  categories,
+  setCategories,
+  setCategoryId,
+  onSuccess,
+  onError,
+}) {
   async function HandleDelete(pk) {
     try {
-      const data = await DeleteCategory(pk);
+      await DeleteCategory(pk);
       setCategories((prev) => prev.filter((u) => u.id !== pk));
+      onSuccess("Category deleted successfully.");
     } catch (err) {
-      console.error(err);
+      onError(err);
     }
   }
   return (
@@ -622,8 +674,14 @@ function CategoriesContainer() {
   const [nextUrl, setNextUrl] = useState(null);
   const [prevUrl, setPrevUrl] = useState(null);
   const [count, setCount] = useState(0);
-
+  const [alert, setAlert] = useState(null);
   const totalPages = Math.ceil(count / PAGE_SIZE);
+
+  useEffect(() => {
+    if (!alert) return;
+    const timer = setTimeout(() => setAlert(null), 3000);
+    return () => clearTimeout(timer);
+  }, [alert]);
 
   useEffect(() => {
     async function fetchDropDownCategories() {
@@ -660,6 +718,7 @@ function CategoriesContainer() {
 
   return (
     <>
+      {alert && <Alert type={alert.type} message={alert.message} />}
       <button
         className="btn btn-xs sm:btn-sm md:btn-md bg-[#4B2E2B] hover:bg-[#8C5A3C] text-[#FFF8F0] border-none transition-colors"
         onClick={() => {
@@ -667,7 +726,6 @@ function CategoriesContainer() {
         }}>
         Add Category <FolderPlus size={20} />
       </button>
-
       {/* DROP DOWN FILTER */}
       <div className="my-4">
         <select
@@ -683,13 +741,12 @@ function CategoriesContainer() {
         </select>
       </div>
       {/*  */}
-
       <CategoryFormModal
         modal_id={categoryFormModal}
         setCategories={setCategories}
         category_id={categoryId}
+        onSuccess={(msg) => setAlert({ type: "success", message: msg })}
       />
-
       <div className="rounded-lg border border-black/6 bg-[#FFF8F0] overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
@@ -699,6 +756,8 @@ function CategoriesContainer() {
               categories={categories}
               setCategories={setCategories}
               setCategoryId={setCategoryId}
+              onSuccess={(msg) => setAlert({ type: "success", message: msg })}
+              onError={(msg) => setAlert({ type: "error", message: msg })}
             />
           )}
         </div>
@@ -727,13 +786,14 @@ function CategoriesContainer() {
   );
 }
 
-function FoodList({ foods, setFoods, setFoodId }) {
+function FoodList({ foods, setFoods, setFoodId, onSuccess, onError }) {
   async function HandleDelete(pk) {
     try {
-      const data = await DeleteFood(pk);
+      await DeleteFood(pk);
       setFoods((prev) => prev.filter((u) => u.id !== pk));
+      onSuccess("Food deleted successfully.");
     } catch (err) {
-      console.error(err);
+      onError(err);
     }
   }
 
@@ -746,8 +806,13 @@ function FoodList({ foods, setFoods, setFoodId }) {
       setFoods((prev) =>
         prev.map((food) => (food.id === data.id ? data : food)),
       );
+      onSuccess(
+        data.is_active
+          ? "Food activated successfully."
+          : "Food deactivated successfully.",
+      );
     } catch (err) {
-      console.error(err);
+      onError(err?.detail || "Failed to update food status.");
     }
   }
   return (
@@ -843,7 +908,14 @@ function FoodContainer() {
   const [dropDownCategories, setDropDownCategories] = useState([]);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [alert, setAlert] = useState(null);
   TOTAL_PAGES = Math.ceil(count / PAGE_SIZE);
+
+  useEffect(() => {
+    if (!alert) return;
+    const timer = setTimeout(() => setAlert(null), 3000);
+    return () => clearTimeout(timer);
+  }, [alert]);
 
   useEffect(() => {
     async function fetchDropDownCategories() {
@@ -879,6 +951,7 @@ function FoodContainer() {
   }, [page, filter, search]);
   return (
     <>
+      {alert && <Alert type={alert.type} message={alert.message} />}
       <button
         className="btn btn-xs sm:btn-sm md:btn-md bg-[#4B2E2B] hover:bg-[#8C5A3C] text-[#FFF8F0] border-none transition-colors"
         onClick={() => {
@@ -891,6 +964,7 @@ function FoodContainer() {
         modal_id={foodFormModal}
         setFoods={setFoods}
         food_id={foodId}
+        onSuccess={(msg) => setAlert({ type: "success", message: msg })}
       />
       {/* SEARCH + FILTER — one row, right-aligned */}
       <div className="my-4 flex justify-between gap-3">
@@ -924,7 +998,13 @@ function FoodContainer() {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <FoodList foods={foods} setFoods={setFoods} setFoodId={setFoodId} />
+            <FoodList
+              foods={foods}
+              setFoods={setFoods}
+              setFoodId={setFoodId}
+              onSuccess={(msg) => setAlert({ type: "success", message: msg })}
+              onError={(msg) => setAlert({ type: "error", message: msg })}
+            />
           )}
         </div>
       </div>
@@ -949,6 +1029,10 @@ function FoodContainer() {
       )}
     </>
   );
+}
+
+function SettingsContainer() {
+  return <SettingsTab />;
 }
 
 function PaymentRecordList({ payments, updateTableModal }) {
@@ -1186,9 +1270,7 @@ const pageContent = {
   Messages: () => (
     <p className="text-[13.5px] text-[#8C887E]">Inbox / message thread here.</p>
   ),
-  Settings: () => (
-    <p className="text-[13.5px] text-[#8C887E]">Account & app settings here.</p>
-  ),
+  Settings: () => <SettingsContainer />,
 };
 /* ------------------------------------------- */
 
@@ -1343,10 +1425,10 @@ export default function AdminSidebar() {
             {!collapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-md text-white truncate leading-tight">
-                  {user.username}
+                  {user?.username}
                 </p>
                 <p className="text-sm text-[#A8977E] truncate leading-tight">
-                  Admin
+                  {user?.role_display}
                 </p>
               </div>
             )}

@@ -45,7 +45,7 @@ class LoginView(APIView):
             value=str(refresh),
             httponly=True,
             secure=True,          
-            samesite='Strict', 
+            samesite='None', 
             path='/api/refresh/token/',  
             max_age=60 * 60 * 24 * 7,   
          ) 

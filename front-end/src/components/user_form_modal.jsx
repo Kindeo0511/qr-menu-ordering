@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { AddUser, UpdateUser } from "../services/user_service";
-
-function UserFormModal({ modal_id, userData, setUserData, setUsers }) {
+import { useAuth } from "../auth/user_auth";
+import Alert from "./Alert";
+function UserFormModal({
+  modal_id,
+  userData,
+  setUserData,
+  setUsers,
+  onSuccess,
+}) {
+  const { user } = useAuth();
   const emptyForm = {
     first_name: userData?.first_name || "",
     last_name: userData?.last_name || "",
@@ -15,6 +23,7 @@ function UserFormModal({ modal_id, userData, setUserData, setUsers }) {
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const isEditMode = Boolean(userData?.id);
 
@@ -42,6 +51,7 @@ function UserFormModal({ modal_id, userData, setUserData, setUsers }) {
   function ClearFields() {
     setForm(emptyForm);
     setError({});
+    setErrorMsg(null);
   }
 
   async function HandleSubmit(e) {
@@ -60,14 +70,17 @@ function UserFormModal({ modal_id, userData, setUserData, setUsers }) {
         setUsers((prev) =>
           prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)),
         );
+        onSuccess("User updated successfully.");
       } else {
         const newUser = await AddUser(payload);
         setUsers((prev) => [...prev, newUser]);
+        onSuccess("User added successfully.");
       }
 
       ClearFields();
       document.getElementById(modal_id).close();
     } catch (err) {
+      setErrorMsg(err.detail);
       setError(err);
     } finally {
       setLoading(false);
@@ -85,7 +98,7 @@ function UserFormModal({ modal_id, userData, setUserData, setUsers }) {
         <h3 className="text-lg font-semibold text-[#4B2E2B] mb-4">
           {isEditMode ? "Edit User" : "Add User"}
         </h3>
-
+        {errorMsg && <Alert type="error" message={errorMsg} />}
         <form onSubmit={HandleSubmit} className="flex flex-col gap-4">
           {/* First & Last Name side by side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -210,12 +223,20 @@ function UserFormModal({ modal_id, userData, setUserData, setUsers }) {
                 name="role"
                 value={form.role}
                 onChange={handleChange}
+                disabled={userData?.username === user.username}
                 className="select w-full bg-[#FFF8F0] border border-[#8C5A3C] text-[#4B2E2B] focus:border-[#C08552] focus:outline-[#C08552]/20">
                 <option value="" disabled>
                   Choose Role
                 </option>
-                <option value="AD">Admin</option>
-                <option value="CA">Cashier</option>
+                {user?.role === "AD" ? (
+                  <>
+                    <option value="AD">Admin</option>
+                    <option value="ST">Staff</option>
+                    <option value="CA">Cashier</option>
+                  </>
+                ) : user?.role === "ST" ? (
+                  <option value="CA">Cashier</option>
+                ) : null}
               </select>
               {error?.role && (
                 <p className="text-[#C08552] text-xs mt-0.5">{error.role}</p>

@@ -1,14 +1,19 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom"; // adjust if using a different router
 import api from "../api/axios";
 import { setAccessToken as setTokenStore } from "../api/tokenStore";
 import { GetCurrentUser } from "../services/user_service";
+
 const AuthContext = createContext(null);
+const PUBLIC_ROUTES = ["/", "/secret-kitchen"];
 
 export function AuthProvider({ children }) {
   const [accessToken, setAccessTokenState] = useState(null);
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const location = useLocation();
+  const hasAttemptedRestore = useRef(false);
 
   function setAccessToken(token) {
     setAccessTokenState(token);
@@ -16,17 +21,20 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    if (window.location.pathname === "/login") {
+    if (PUBLIC_ROUTES.includes(location.pathname)) {
       setLoading(false);
       return;
     }
+
+    if (hasAttemptedRestore.current) return;
+    hasAttemptedRestore.current = true;
+
     async function restoreSession() {
       setLoading(true);
       try {
-        if (!accessToken) return;
         const res = await api.post("api/refresh/token/");
-        setAccessToken(res.data.access);
-        setAuth({ access: res.data.access });
+        setAccessToken(res?.data?.access);
+        setAuth({ access: res?.data?.access });
         const userData = await GetCurrentUser();
         setUser(userData);
       } catch (err) {
@@ -39,7 +47,7 @@ export function AuthProvider({ children }) {
     }
 
     restoreSession();
-  }, []);
+  }, [location.pathname]);
 
   async function login(payload) {
     const response = await api.post("api/login/", payload);
@@ -59,7 +67,7 @@ export function AuthProvider({ children }) {
   async function logout() {
     setLoading(true);
     try {
-      const data = await api.post("/api/logout/");
+      await api.post("/api/logout/");
     } finally {
       setAccessToken(null);
       setAuth(null);

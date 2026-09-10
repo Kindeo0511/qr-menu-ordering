@@ -25,7 +25,7 @@ function Login_Page({
       const payload = { username, password };
       const data = await login(payload);
 
-      if (data.role === "AD") {
+      if (data.role === "AD" || data.role === "ST") {
         navigate("/admin-dashboard");
       } else if (data.role === "CA") {
         navigate("/secret-cashier");

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { CreateFood, UpdateFood, GetFoodById } from "../services/food_service";
 import { LoadCategories } from "../services/category_service";
-
-function FoodFormModal({ modal_id, food_id, setFoods }) {
+import Alert from "./Alert";
+function FoodFormModal({ modal_id, food_id, setFoods, onSuccess }) {
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: "",
@@ -14,6 +14,7 @@ function FoodFormModal({ modal_id, food_id, setFoods }) {
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
   const isEditMode = Boolean(food_id);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -69,6 +70,7 @@ function FoodFormModal({ modal_id, food_id, setFoods }) {
   async function HandleSubmit(e) {
     e.preventDefault();
     setError({});
+    setErrorMsg(null);
     setLoading(true);
 
     const payload = new FormData();
@@ -88,15 +90,17 @@ function FoodFormModal({ modal_id, food_id, setFoods }) {
         setFoods((prev) =>
           prev.map((food) => (food.id === data.id ? data : food)),
         );
+        onSuccess("Food updated successfully.");
       } else {
         data = await CreateFood(payload);
         setFoods((prev) => [...prev, data]);
+        onSuccess("Food added successfully.");
       }
 
       ClearFields();
       document.getElementById(modal_id).close();
     } catch (err) {
-      console.log("Validation errors:", err);
+      setErrorMsg(err?.detail || err?.message);
       setError(err);
     } finally {
       setLoading(false);
@@ -120,7 +124,7 @@ function FoodFormModal({ modal_id, food_id, setFoods }) {
           <h3 className="text-lg font-semibold text-[#4B2E2B] mb-4">
             {isEditMode ? "Edit Food" : "Add Food"}
           </h3>
-
+          {errorMsg && <Alert type="error" message={errorMsg} />}
           <form onSubmit={HandleSubmit} className="flex flex-col gap-5">
             {error?.non_field_errors && (
               <div className="rounded-lg bg-[#C08552]/20 border border-[#C08552] p-3">

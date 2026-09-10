@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
 import {
   CreateCategory,
-  LoadCategories,
   GetCategory,
   UpdateCategory,
-  DeleteCategory,
 } from "../services/category_service";
-
-function CategoryFormModal({ modal_id, category_id, setCategories }) {
+import Alert from "./Alert";
+function CategoryFormModal({
+  modal_id,
+  category_id,
+  setCategories,
+  onSuccess,
+}) {
   const [form, setForm] = useState({ name: "", photo: null });
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
   const isEditMode = Boolean(category_id);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -22,8 +26,7 @@ function CategoryFormModal({ modal_id, category_id, setCategories }) {
         const data = await GetCategory(category_id);
         setForm({ name: data.name ?? "", photo: data.photo ?? null });
       } catch (err) {
-        console.error("HandleSubmit error:", err); // <-- add this
-        setError(err);
+        console.log(err);
       } finally {
         setLoading(false);
       }
@@ -44,6 +47,7 @@ function CategoryFormModal({ modal_id, category_id, setCategories }) {
   async function HandleSubmit(e) {
     e.preventDefault();
     setError({});
+    setErrorMsg(null);
     setLoading(true);
 
     const payload = new FormData();
@@ -52,7 +56,7 @@ function CategoryFormModal({ modal_id, category_id, setCategories }) {
     if (form.photo && typeof form.photo !== "string") {
       payload.append("photo", form.photo);
     }
-    console.log(payload);
+
     try {
       if (isEditMode) {
         const data = await UpdateCategory(payload, category_id);
@@ -60,14 +64,17 @@ function CategoryFormModal({ modal_id, category_id, setCategories }) {
         setCategories((prev) =>
           prev.map((category) => (category.id === data.id ? data : category)),
         );
+        onSuccess("Category updated successfully.");
       } else {
         const data = await CreateCategory(payload);
         setCategories((prev) => [...prev, data]);
+        onSuccess("Category added successfully.");
       }
 
       ClearFields();
       document.getElementById(modal_id).close();
     } catch (err) {
+      setErrorMsg(err?.detail || err?.message);
       setError(err);
     } finally {
       setLoading(false);
@@ -76,6 +83,7 @@ function CategoryFormModal({ modal_id, category_id, setCategories }) {
 
   function ClearFields() {
     setError({});
+    setErrorMsg(null);
   }
 
   return (
@@ -85,7 +93,7 @@ function CategoryFormModal({ modal_id, category_id, setCategories }) {
           <h3 className="text-lg font-semibold text-[#4B2E2B] mb-4">
             {isEditMode ? "Edit Category" : "New Category"}
           </h3>
-
+          {errorMsg && <Alert type="error" message={errorMsg} />}
           <form onSubmit={HandleSubmit} className="flex flex-col gap-5">
             <div className="flex flex-col w-full gap-1.5">
               <label

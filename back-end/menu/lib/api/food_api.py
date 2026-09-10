@@ -43,7 +43,7 @@ class UpdateFoodView(APIView):
         try:
 
             food_data = get_food(pk)
-            serializer = FoodSerializer(instance=food_data, data=request.data)
+            serializer = FoodSerializer(instance=food_data, data=request.data, partial=True)
             if serializer.is_valid():
                 updated_food_data = update_food(food_data, serializer.validated_data)
                 serializer = DisplayFoodSerializer(updated_food_data)

@@ -5,7 +5,7 @@ from rest_framework import status
 from ..serializer.menu_serializer import SavePaymentSerializer, DisplayPaymentSerializer
 from ..service.payment_service import *
 from django.db import transaction, IntegrityError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from ...permission import IsCashier, IsAdmin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -16,7 +16,7 @@ search = SearchFilter()
 paginator = StandardResultsSetPagination()
 
 class ProcessPaymentView(APIView):
-    permission_classes = [IsAuthenticated & (IsAdmin | IsCashier)]
+    permission_classes = [IsAuthenticated & (IsAdminUser | IsCashier)]
     def post(self, request: Request) -> Response:
         serializer = SavePaymentSerializer(data=request.data)
         if serializer.is_valid():
@@ -34,7 +34,7 @@ class ProcessPaymentView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ShowAllPaymentView(APIView):
-    permission_classes = [IsAuthenticated & (IsAdmin | IsCashier)]
+    permission_classes = [IsAuthenticated & (IsAdminUser | IsCashier)]
     search_fields = ['cashier__username',
                     'cashier__first_name',
                     'cashier__last_name',
@@ -54,7 +54,7 @@ class ShowAllPaymentView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class GetPaymentByIdView(APIView):
-    permission_classes = [IsAuthenticated & (IsAdmin | IsCashier)]
+    permission_classes = [IsAuthenticated & (IsAdminUser | IsCashier)]
     def get(self, request, pk:int) -> Response:
         try:
             payment_data = get_payment_by_id(pk)
@@ -64,6 +64,7 @@ class GetPaymentByIdView(APIView):
             return Response({'error: ':'Payment record not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class WeeklyRevenueView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def get(self, request:Request) -> Response:
         weekly_revenue = get_weekly_revenue_trend()
         return Response(weekly_revenue,status=status.HTTP_200_OK)

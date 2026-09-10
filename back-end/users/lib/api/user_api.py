@@ -2,12 +2,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from ..service.user_service import create_user, current_user, get_all_user, get_user_by_id, delete_user, update_user
-from users.lib.serializer.user_serializer import CreateUserSerializer, DisplayUserSerializer
+from ..service.user_service import *
+from users.lib.serializer.user_serializer import CreateUserSerializer, DisplayUserSerializer, UserProfileSeriliazer, ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import authenticate
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from users.models import UserModel
 from ...common.custom_pagination import StandardResultsSetPagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -91,9 +91,12 @@ class UpdateUserView(APIView):
     permission_classes = [IsAuthenticated,IsAdmin]
     def put(self, request, pk:int) -> Response:
         try:
-
+  
             user_data = get_user_by_id(pk)
-            serializer = CreateUserSerializer(instance=user_data, data=request.data)
+
+            self.check_object_permissions(request,user_data)
+            
+            serializer = CreateUserSerializer(instance=user_data, data=request.data, partial=True)
 
             if serializer.is_valid():
                 updated_user = update_user(user_data, serializer.validated_data)
@@ -107,24 +110,62 @@ class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated,IsAdmin]
     def delete(self, request, pk: int) -> Response:
         try:                  
+         
             user_data = get_user_by_id(pk)
+            self.check_object_permissions(request,user_data)
+         
             delete_user(user_data)
+          
             return Response(status=status.HTTP_204_NO_CONTENT)
         except UserModel.DoesNotExist:
             return Response({'error':'User does not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class GetAllUserView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     search_fields = ['username','first_name','last_name']
     filterset_fields = ['role']
     def get(self, request:Request) -> Response:
 
-        users = get_all_user()
+        users = get_all_user(request.user)
         users = filters.filter_queryset(request, users, self)
         users = search.filter_queryset(request, users, self)
         page_result = paginator.paginate_queryset(users, request)
         serializer = DisplayUserSerializer(page_result, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+class GetUserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request:Request)-> Response:
+        user_data = get_user_profile_by_username(request.user.username)
+        serializer = UserProfileSeriliazer(user_data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class UpdateUserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request: Request) -> Response:
+        username = request.user.username
+        user_data = get_user_profile_by_username(username)
+        serializer = UserProfileSeriliazer(data=request.data)
+
+        if serializer.is_valid():
+            updated_user_data = update_user(user_data, serializer.validated_data)
+            serializer = UserProfileSeriliazer(updated_user_data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request:Request) -> Response:
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            update_user(request.user, serializer.validated_data)
+            return Response( {"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+        
 
         
 

@@ -21,3 +21,27 @@ class DisplayUserSerializer(serializers.ModelSerializer):
         model = UserModel
         fields = ['id','first_name','last_name','email','contact_number',
                   'username','role','role_display']
+
+
+class UserProfileSeriliazer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    contact_number = serializers.CharField(required=True)
+    class Meta:
+        model = UserModel
+        fields = ['first_name','last_name','email','contact_number']
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    class Meta:
+        model = UserModel
+        fields = ['password']
+
+        
+
+
+
+
+    
+                  

@@ -5,11 +5,11 @@ from rest_framework import status
 from ..serializer.menu_serializer import CategorySerializer, DisplayCategorySerializer
 from ..service.category_service import *
 from ...common.custom_pagination import StandardResultsSetPagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 paginator = StandardResultsSetPagination()
 
 class CreateCategoryView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def post(self, request: Request) -> Response:
         serializer = CategorySerializer(data = request.data)
         if serializer.is_valid():
@@ -28,7 +28,7 @@ class ShowAllCategoryView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class UpdateCategoryView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def put(self, request, pk:int) -> Response:
         try:
             old_category = get_category_by_id(pk)
@@ -42,7 +42,7 @@ class UpdateCategoryView(APIView):
             return Response({'error: ':"Category not found."}, status=status.HTTP_404_NOT_FOUND)\
 
 class DeleteCategoryView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def delete(self, request, pk:int) -> Response:
         try:
 

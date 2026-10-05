@@ -5,9 +5,9 @@ from rest_framework import status
 from ..service.table_order_service import orders_today, count_pending_payments
 from ..service.table_service import count_available_tables, count_unavailable_tables
 from ..service.payment_service import count_revenue_today
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 class DashBoardStatsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def get(self, request:Request) -> Response:
         today_revenue = count_revenue_today()
         today_orders = orders_today()

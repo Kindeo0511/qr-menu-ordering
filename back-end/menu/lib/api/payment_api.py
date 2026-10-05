@@ -16,7 +16,7 @@ search = SearchFilter()
 paginator = StandardResultsSetPagination()
 
 class ProcessPaymentView(APIView):
-    permission_classes = [IsAuthenticated & (IsAdminUser | IsCashier)]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def post(self, request: Request) -> Response:
         serializer = SavePaymentSerializer(data=request.data)
         if serializer.is_valid():
@@ -34,7 +34,7 @@ class ProcessPaymentView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ShowAllPaymentView(APIView):
-    permission_classes = [IsAuthenticated & (IsAdminUser | IsCashier)]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     search_fields = ['cashier__username',
                     'cashier__first_name',
                     'cashier__last_name',
@@ -54,7 +54,7 @@ class ShowAllPaymentView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class GetPaymentByIdView(APIView):
-    permission_classes = [IsAuthenticated & (IsAdminUser | IsCashier)]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def get(self, request, pk:int) -> Response:
         try:
             payment_data = get_payment_by_id(pk)

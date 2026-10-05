@@ -78,7 +78,7 @@ class CurrentUserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
         
 class CreateUserView(APIView):
-    permission_classes = [IsAuthenticated,IsAdmin]
+    permission_classes = [IsAuthenticated,IsAdminUser]
     def post(self, request: Request) -> Response:
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
@@ -88,7 +88,7 @@ class CreateUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateUserView(APIView):
-    permission_classes = [IsAuthenticated,IsAdmin]
+    permission_classes = [IsAuthenticated,IsAdminUser]
     def put(self, request, pk:int) -> Response:
         try:
   
@@ -107,7 +107,7 @@ class UpdateUserView(APIView):
             return Response({'error':'User does not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class DeleteUserView(APIView):
-    permission_classes = [IsAuthenticated,IsAdmin]
+    permission_classes = [IsAuthenticated,IsAdminUser]
     def delete(self, request, pk: int) -> Response:
         try:                  
          
@@ -121,7 +121,7 @@ class DeleteUserView(APIView):
             return Response({'error':'User does not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class GetAllUserView(APIView):
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     search_fields = ['username','first_name','last_name']
     filterset_fields = ['role']
     def get(self, request:Request) -> Response:

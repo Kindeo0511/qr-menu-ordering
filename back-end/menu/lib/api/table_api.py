@@ -11,7 +11,7 @@ from django.db.models import Max
 from ...common.custom_pagination import StandardResultsSetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 import io
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
@@ -26,7 +26,7 @@ from ordering_admin import settings
 paginator = StandardResultsSetPagination()
 search = SearchFilter()
 class CreateQRTableView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def post(self, request: Request) -> Response:
         count = request.data.get('table_count')
         try:
@@ -76,7 +76,7 @@ class CreateQRTableView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class ShowAllQRTableView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     search_fields = ['table_number']
     def get(self, request:Request) -> Response:
         tables = get_all_qr_table()
@@ -86,7 +86,7 @@ class ShowAllQRTableView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class DeleteQRTableView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def delete(self, request, pk:int) -> Response:
         try:
             table_data = get_qr_table(pk)
@@ -106,7 +106,7 @@ class GetQRTableByIdView(APIView):
             return Response({'error: ':'Table does not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class UpdateQRTableView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def patch(self, request, pk:int) -> Response:
         try:
             table_data = get_qr_table(pk)
@@ -120,6 +120,7 @@ class UpdateQRTableView(APIView):
             return Response({"error: ":"Table does not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class GenerateQRCodeView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def post(self, request, number: int) -> FileResponse:
         qr_table = get_qr_table(number)
 
